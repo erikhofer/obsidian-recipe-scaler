@@ -46,3 +46,28 @@ export function parseQuantity(inner: string): Quantity | null {
     raw: inner.trim(),
   };
 }
+
+export function scaleNumber(
+  n: number,
+  factor: number,
+  format: NumberFormat
+): string {
+  const raw = n * factor;
+  const at2 = parseFloat(raw.toFixed(2));
+  const rounded = Math.round(at2);
+  let result: string;
+  if (Math.abs(at2 - rounded) < 0.011) {
+    result = String(rounded);
+  } else {
+    result = at2.toString();
+    if (result.includes(".")) {
+      result = result.replace(/\.?0+$/, "");
+    }
+  }
+
+  if (result.includes(".") && format.decimalSep === ",") {
+    result = result.replace(".", ",");
+  }
+
+  return result;
+}

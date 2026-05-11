@@ -82,3 +82,50 @@ describe("parseQuantity", () => {
     expect(parseQuantity("-200 ml")).toBeNull();
   });
 });
+
+import { scaleNumber } from "./scaler";
+
+describe("scaleNumber", () => {
+  const dotInt = { decimalSep: "." as const, hadDecimal: false };
+  const dotDec = { decimalSep: "." as const, hadDecimal: true };
+  const comDec = { decimalSep: "," as const, hadDecimal: true };
+
+  it("integer scaling that stays integer", () => {
+    expect(scaleNumber(100, 1.5, dotInt)).toBe("150");
+    expect(scaleNumber(2, 3, dotInt)).toBe("6");
+  });
+
+  it("integer scaling that becomes a decimal uses dot by default", () => {
+    expect(scaleNumber(1, 0.5, dotInt)).toBe("0.5");
+    expect(scaleNumber(100, 0.333, dotInt)).toBe("33.3");
+  });
+
+  it("smart-rounds near-integer results to integer", () => {
+    expect(scaleNumber(0.33, 3, dotDec)).toBe("1");
+    expect(scaleNumber(100, 1 / 3, dotInt)).toBe("33.33");
+  });
+
+  it("strips trailing zeros at 2 decimals", () => {
+    expect(scaleNumber(100, 0.25, dotInt)).toBe("25");
+    expect(scaleNumber(100, 0.125, dotInt)).toBe("12.5");
+  });
+
+  it("preserves comma separator for decimal output", () => {
+    expect(scaleNumber(1.5, 1, comDec)).toBe("1,5");
+    expect(scaleNumber(0.5, 1, comDec)).toBe("0,5");
+    expect(scaleNumber(0.5, 2, comDec)).toBe("1");
+  });
+
+  it("preserves dot separator for decimal output", () => {
+    expect(scaleNumber(1.5, 2, dotDec)).toBe("3");
+    expect(scaleNumber(0.7, 0.5, dotDec)).toBe("0.35");
+  });
+
+  it("clamps very small non-zero results to two decimals", () => {
+    expect(scaleNumber(100, 0.001, dotInt)).toBe("0.1");
+  });
+
+  it("handles zero factor", () => {
+    expect(scaleNumber(100, 0, dotInt)).toBe("0");
+  });
+});
