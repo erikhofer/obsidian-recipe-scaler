@@ -1,4 +1,4 @@
-import type { Quantity, NumberFormat } from "./types";
+import type { Quantity, NumberFormat, PluralPair } from "./types";
 
 const NUM = "(\\d+(?:[.,]\\d+)?)";
 const PATTERN = new RegExp(`^\\s*${NUM}(?:\\s*-\\s*${NUM})?\\s+(\\S.*?)\\s*$`);
@@ -70,4 +70,18 @@ export function scaleNumber(
   }
 
   return result;
+}
+
+export function applyPluralization(
+  referenceValue: number,
+  unit: string,
+  pairs: PluralPair[]
+): string {
+  if (!unit) return unit;
+  for (const pair of pairs) {
+    if (pair.singular === unit || pair.plural === unit) {
+      return referenceValue === 1 ? pair.singular : pair.plural;
+    }
+  }
+  return unit;
 }

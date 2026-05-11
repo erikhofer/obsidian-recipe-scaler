@@ -129,3 +129,45 @@ describe("scaleNumber", () => {
     expect(scaleNumber(100, 0, dotInt)).toBe("0");
   });
 });
+
+import { applyPluralization } from "./scaler";
+
+describe("applyPluralization", () => {
+  const pairs = [
+    { singular: "cup", plural: "cups" },
+    { singular: "clove", plural: "cloves" },
+  ];
+
+  it("returns singular when value is exactly 1", () => {
+    expect(applyPluralization(1, "cup", pairs)).toBe("cup");
+    expect(applyPluralization(1, "cups", pairs)).toBe("cup");
+  });
+
+  it("returns plural when value is not 1", () => {
+    expect(applyPluralization(2, "cup", pairs)).toBe("cups");
+    expect(applyPluralization(0.5, "cup", pairs)).toBe("cups");
+    expect(applyPluralization(0, "cup", pairs)).toBe("cups");
+  });
+
+  it("leaves unit unchanged when not in pair list", () => {
+    expect(applyPluralization(2, "ml", pairs)).toBe("ml");
+    expect(applyPluralization(1, "ml", pairs)).toBe("ml");
+  });
+
+  it("matches case-sensitively", () => {
+    expect(applyPluralization(2, "Cup", pairs)).toBe("Cup");
+  });
+
+  it("matches when unit is already in the plural form", () => {
+    expect(applyPluralization(2, "cloves", pairs)).toBe("cloves");
+    expect(applyPluralization(1, "cloves", pairs)).toBe("clove");
+  });
+
+  it("returns the input for empty unit", () => {
+    expect(applyPluralization(1, "", pairs)).toBe("");
+  });
+
+  it("returns the input when pairs list is empty", () => {
+    expect(applyPluralization(2, "cup", [])).toBe("cup");
+  });
+});
