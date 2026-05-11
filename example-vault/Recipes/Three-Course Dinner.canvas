@@ -1,0 +1,41 @@
+{
+  "nodes": [
+    {
+      "id": "scaler",
+      "type": "text",
+      "text": "<recipe-scaler baseServings=\"4\" />\n\n## Three-Course Dinner\n\nAll dishes scale together.",
+      "x": -300,
+      "y": -400,
+      "width": 400,
+      "height": 200
+    },
+    {
+      "id": "starter",
+      "type": "file",
+      "file": "Recipes/Three-Course Dinner/Starter - Bruschetta.md",
+      "x": -700,
+      "y": 0,
+      "width": 400,
+      "height": 500
+    },
+    {
+      "id": "main",
+      "type": "file",
+      "file": "Recipes/Three-Course Dinner/Main - Pasta Aglio e Olio.md",
+      "x": -150,
+      "y": 0,
+      "width": 400,
+      "height": 500
+    },
+    {
+      "id": "dessert",
+      "type": "file",
+      "file": "Recipes/Three-Course Dinner/Dessert - Chocolate Avocado Mousse.md",
+      "x": 400,
+      "y": 0,
+      "width": 400,
+      "height": 500
+    }
+  ],
+  "edges": []
+}
