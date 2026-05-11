@@ -40,6 +40,7 @@ export class CanvasResolver {
     const newOpen = new Set<string>();
     this.app.workspace.iterateAllLeaves((leaf) => {
       if (leaf.view.getViewType() === "canvas") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const file = (leaf.view as any).file;
         if (file?.path) newOpen.add(file.path);
       }
@@ -48,6 +49,7 @@ export class CanvasResolver {
     const newMapping = new Map<string, string>();
     for (const canvasPath of newOpen) {
       const f = this.app.vault.getAbstractFileByPath(canvasPath);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!f || !(f as any).path) continue;
       try {
         const content = await this.app.vault.read(f as TFile);
