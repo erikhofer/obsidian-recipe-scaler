@@ -1,0 +1,9 @@
+{
+  "id": "recipe-scaler",
+  "name": "Recipe Scaler",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Scale recipe quantities dynamically by serving size in notes and canvases.",
+  "author": "Erik Hofer",
+  "isDesktopOnly": false
+}
