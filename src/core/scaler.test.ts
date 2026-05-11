@@ -171,3 +171,43 @@ describe("applyPluralization", () => {
     expect(applyPluralization(2, "cup", [])).toBe("cup");
   });
 });
+
+import { renderScaled } from "./scaler";
+
+describe("renderScaled", () => {
+  const pairs = [
+    { singular: "cup", plural: "cups" },
+    { singular: "clove", plural: "cloves" },
+  ];
+
+  it("scales a single integer quantity", () => {
+    const q = parseQuantity("100 ml")!;
+    expect(renderScaled(q, 1.5, pairs)).toBe("150 ml");
+  });
+
+  it("switches plural to singular on scale down", () => {
+    const q = parseQuantity("2 cups")!;
+    expect(renderScaled(q, 0.5, pairs)).toBe("1 cup");
+  });
+
+  it("switches singular to plural on scale up", () => {
+    const q = parseQuantity("1 cup")!;
+    expect(renderScaled(q, 2, pairs)).toBe("2 cups");
+  });
+
+  it("scales a range and pluralizes by upper endpoint", () => {
+    const q = parseQuantity("1-2 cloves")!;
+    expect(renderScaled(q, 0.5, pairs)).toBe("0.5-1 clove");
+    expect(renderScaled(q, 2, pairs)).toBe("2-4 cloves");
+  });
+
+  it("preserves comma separator in scaled decimal output", () => {
+    const q = parseQuantity("0,5 tsp")!;
+    expect(renderScaled(q, 3, pairs)).toBe("1,5 tsp");
+  });
+
+  it("leaves unknown unit untouched", () => {
+    const q = parseQuantity("100 ml")!;
+    expect(renderScaled(q, 0.5, pairs)).toBe("50 ml");
+  });
+});

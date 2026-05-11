@@ -85,3 +85,32 @@ export function applyPluralization(
   }
   return unit;
 }
+
+export function renderScaled(
+  q: Quantity,
+  factor: number,
+  pairs: PluralPair[]
+): string {
+  if (q.kind === "single") {
+    const numStr = scaleNumber(q.value, factor, q.format);
+    const refValue = q.value * factor;
+    const unit = applyPluralization(
+      Math.abs(refValue - Math.round(refValue)) < 0.011
+        ? Math.round(refValue)
+        : refValue,
+      q.unit,
+      pairs
+    );
+    return `${numStr} ${unit}`;
+  } else {
+    const fromStr = scaleNumber(q.from, factor, q.format);
+    const toStr = scaleNumber(q.to, factor, q.format);
+    const refTo = q.to * factor;
+    const unit = applyPluralization(
+      Math.abs(refTo - Math.round(refTo)) < 0.011 ? Math.round(refTo) : refTo,
+      q.unit,
+      pairs
+    );
+    return `${fromStr}-${toStr} ${unit}`;
+  }
+}
