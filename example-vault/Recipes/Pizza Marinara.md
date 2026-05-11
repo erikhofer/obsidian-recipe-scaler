@@ -1,4 +1,6 @@
-<recipe-scaler baseServings="4" />
+```recipe-scaler
+baseServings: 4
+```
 
 # Pizza Marinara
 

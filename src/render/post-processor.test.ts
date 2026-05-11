@@ -1,46 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import {
-  findScalerTags,
-  replaceQuantitiesInTextNodes,
-} from "./post-processor";
-
-describe("findScalerTags", () => {
-  beforeEach(() => {
-    document.body.innerHTML = "";
-  });
-
-  it("finds a recipe-scaler element with baseServings", () => {
-    document.body.innerHTML =
-      '<recipe-scaler baseservings="4"></recipe-scaler>';
-    const tags = findScalerTags(document.body);
-    expect(tags.length).toBe(1);
-    expect(tags[0].baseServings).toBe(4);
-  });
-
-  it("returns baseServings=1 with a warning flag when attribute is missing", () => {
-    document.body.innerHTML = "<recipe-scaler></recipe-scaler>";
-    const tags = findScalerTags(document.body);
-    expect(tags[0].baseServings).toBe(1);
-    expect(tags[0].malformed).toBe(true);
-  });
-
-  it("returns baseServings=1 with a warning flag when attribute is invalid", () => {
-    document.body.innerHTML =
-      '<recipe-scaler baseservings="abc"></recipe-scaler>';
-    const tags = findScalerTags(document.body);
-    expect(tags[0].baseServings).toBe(1);
-    expect(tags[0].malformed).toBe(true);
-  });
-
-  it("returns all tags in document order", () => {
-    document.body.innerHTML =
-      '<recipe-scaler baseservings="4"></recipe-scaler>' +
-      '<p>x</p>' +
-      '<recipe-scaler baseservings="6"></recipe-scaler>';
-    const tags = findScalerTags(document.body);
-    expect(tags.map((t) => t.baseServings)).toEqual([4, 6]);
-  });
-});
+import { replaceQuantitiesInTextNodes } from "./post-processor";
 
 describe("replaceQuantitiesInTextNodes", () => {
   beforeEach(() => {
@@ -80,9 +39,9 @@ describe("replaceQuantitiesInTextNodes", () => {
     expect(second.length).toBe(0);
   });
 
-  it("ignores text inside <recipe-scaler> elements", () => {
+  it("ignores text inside the scaler widget", () => {
     document.body.innerHTML =
-      '<recipe-scaler baseservings="4">{100 ml}</recipe-scaler>';
+      '<span class="recipe-scaler-widget">{100 ml}</span>';
     const results = replaceQuantitiesInTextNodes(document.body);
     expect(results.length).toBe(0);
   });

@@ -17,6 +17,6 @@ This vault demonstrates the Recipe Scaler plugin.
 ## Examples
 
 - **Single note:** `Recipes/Pizza Marinara.md`
-- **Canvas:** `Recipes/Three-Course Dinner.canvas` (added in a later task)
+- **Canvas:** `Recipes/Three-Course Dinner.canvas`
 
 Switch the note to Reading View (Ctrl/Cmd+E) to see the scaler UI.

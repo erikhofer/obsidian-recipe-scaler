@@ -2,35 +2,13 @@ import type { MarkdownPostProcessorContext } from "obsidian";
 import { parseQuantity } from "../core/scaler";
 import type { Quantity } from "../core/types";
 import type { ScalerRegistry, ScopeId } from "../registry/scaler-registry";
-import { createScalerWidget } from "../ui/scaler-widget";
-
-export interface FoundTag {
-  el: Element;
-  baseServings: number;
-  malformed: boolean;
-}
 
 export interface FoundQuantity {
   span: HTMLSpanElement;
   quantity: Quantity;
 }
 
-const SCALER_TAG_NAME = "recipe-scaler";
 const QUANTITY_RE = /\{([^{}\n]+)\}/g;
-
-export function findScalerTags(root: ParentNode): FoundTag[] {
-  const els = Array.from(root.querySelectorAll(SCALER_TAG_NAME));
-  return els.map((el) => {
-    const raw = el.getAttribute("baseservings");
-    const parsed = raw === null ? NaN : parseInt(raw, 10);
-    const valid = Number.isFinite(parsed) && parsed >= 1;
-    return {
-      el,
-      baseServings: valid ? parsed : 1,
-      malformed: !valid,
-    };
-  });
-}
 
 export function replaceQuantitiesInTextNodes(
   root: Node
@@ -44,7 +22,7 @@ export function replaceQuantitiesInTextNodes(
           if (parent.classList?.contains("recipe-scaler-qty")) {
             return NodeFilter.FILTER_REJECT;
           }
-          if (parent.tagName.toLowerCase() === SCALER_TAG_NAME) {
+          if (parent.classList?.contains("recipe-scaler-widget")) {
             return NodeFilter.FILTER_REJECT;
           }
         }
@@ -105,39 +83,11 @@ export interface PostProcessorDeps {
 export function createPostProcessor(deps: PostProcessorDeps) {
   return (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
     const scopeId = deps.resolveScope(ctx.sourcePath);
-
-    const tags = findScalerTags(el);
-    let firstHandled = false;
-    let baseServings = 1;
-    for (const tag of tags) {
-      if (!firstHandled) {
-        firstHandled = true;
-        baseServings = tag.baseServings;
-        const widget = createScalerWidget({
-          baseServings: tag.baseServings,
-          onChange: () => {
-            /* registry handles update via input change listener */
-          },
-        });
-        tag.el.replaceWith(widget);
-        const input = widget.querySelector("input") as HTMLInputElement;
-        deps.registry.registerUI(scopeId, input, tag.baseServings, () => {});
-        if (tag.malformed) {
-          console.warn(
-            "[recipe-scaler] missing or invalid baseServings; defaulted to 1"
-          );
-        }
-      } else {
-        const warn = document.createElement("span");
-        warn.className = "recipe-scaler-warning";
-        warn.textContent = "⚠ extra recipe-scaler tag ignored";
-        tag.el.replaceWith(warn);
-      }
-    }
-
     const quantities = replaceQuantitiesInTextNodes(el);
     for (const { span, quantity } of quantities) {
-      deps.registry.registerSpan(scopeId, span, quantity, baseServings);
+      // baseServings=1 is a placeholder — the registry uses the value supplied
+      // by registerUI (from the recipe-scaler code block) as authoritative.
+      deps.registry.registerSpan(scopeId, span, quantity, 1);
     }
   };
 }

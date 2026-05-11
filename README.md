@@ -4,19 +4,21 @@ Obsidian plugin that scales recipe quantities dynamically by serving size, in no
 
 ## Usage
 
-Add a tag at the top of a recipe note, then wrap quantities in curly braces:
+Add a `recipe-scaler` code block at the top of a recipe note, then wrap quantities in curly braces:
 
-```markdown
-<recipe-scaler baseServings="4" />
+````markdown
+```recipe-scaler
+baseServings: 4
+```
 
 - {2 cups} flour
 - {3 cloves} garlic
 - {1-2 pinches} salt
-```
+````
 
-Switch the note to Reading View. The tag becomes an input — change the servings and every `{…}` updates inline.
+Switch the note to Reading View. The code block becomes an input — change the servings and every `{…}` updates inline.
 
-In a canvas: place the tag in any text node and reference recipe `.md` files as canvas file nodes. The scaler controls all quantities across all nodes in the canvas.
+In a canvas: place the code block in any text node and reference recipe `.md` files as canvas file nodes. The scaler controls all quantities across all nodes in the canvas.
 
 ## Singular/Plural
 

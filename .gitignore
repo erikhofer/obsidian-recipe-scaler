@@ -10,3 +10,6 @@ dist/
 .vscode/
 coverage/
 example-vault/.obsidian/plugins/recipe-scaler/
+example-vault/.obsidian/workspace.json
+example-vault/.obsidian/appearance.json
+example-vault/.obsidian/core-plugins.json

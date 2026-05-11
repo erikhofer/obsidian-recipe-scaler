@@ -3,6 +3,7 @@ import { RecipeScalerSettings, DEFAULT_SETTINGS } from "./settings/types";
 import { RecipeScalerSettingTab } from "./settings/settings-tab";
 import { ScalerRegistry } from "./registry/scaler-registry";
 import { createPostProcessor } from "./render/post-processor";
+import { createCodeBlockProcessor } from "./render/code-block-processor";
 import { CanvasResolver } from "./render/canvas-resolver";
 
 export default class RecipeScalerPlugin extends Plugin {
@@ -21,12 +22,16 @@ export default class RecipeScalerPlugin extends Plugin {
       void this.canvasResolver.start();
     });
 
+    const resolveScope = (sourcePath: string) =>
+      this.canvasResolver.resolveScope(sourcePath);
+
+    this.registerMarkdownCodeBlockProcessor(
+      "recipe-scaler",
+      createCodeBlockProcessor({ registry: this.registry, resolveScope })
+    );
+
     this.registerMarkdownPostProcessor(
-      createPostProcessor({
-        registry: this.registry,
-        resolveScope: (sourcePath: string) =>
-          this.canvasResolver.resolveScope(sourcePath),
-      })
+      createPostProcessor({ registry: this.registry, resolveScope })
     );
 
     this.addSettingTab(new RecipeScalerSettingTab(this.app, this));
