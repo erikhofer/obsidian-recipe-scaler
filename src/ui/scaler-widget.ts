@@ -38,7 +38,7 @@ export function createScalerWidget(opts: ScalerWidgetOptions): HTMLElement {
   reset.title = `Reset to ${opts.baseServings}`;
   reset.addEventListener("click", () => {
     input.value = String(opts.baseServings);
-    opts.onChange(opts.baseServings);
+    input.dispatchEvent(new Event("change"));
   });
   wrap.appendChild(reset);
 

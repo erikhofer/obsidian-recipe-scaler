@@ -62,4 +62,17 @@ describe("createScalerWidget", () => {
     const widget = createScalerWidget({ baseServings: 4, onChange: () => {} });
     expect(widget.classList.contains("recipe-scaler-widget")).toBe(true);
   });
+
+  it("dispatches a change event on reset (so registry listeners fire)", () => {
+    const widget = createScalerWidget({ baseServings: 4, onChange: () => {} });
+    document.body.appendChild(widget);
+    const input = widget.querySelector("input") as HTMLInputElement;
+    const reset = widget.querySelector("button") as HTMLButtonElement;
+    let changeEvents = 0;
+    input.addEventListener("change", () => { changeEvents++; });
+    input.value = "8";
+    reset.click();
+    expect(input.value).toBe("4");
+    expect(changeEvents).toBeGreaterThan(0);
+  });
 });
