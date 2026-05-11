@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production",
+    "install:example": "node scripts/install-to-example-vault.mjs",
+    "build:install": "npm run build && npm run install:example",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src --ext .ts"
