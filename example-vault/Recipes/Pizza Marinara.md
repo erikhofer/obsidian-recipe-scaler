@@ -23,7 +23,7 @@ A naturally vegan classic from Naples — tomato, garlic, oregano, and good oliv
 
 ## Method
 
-1. Mix flour, water, salt, and yeast. Knead {8-10 minutes}, then rest {2 hours}.
-2. Divide into {4 balls} and rest {30 minutes} more.
+1. Mix flour, water, salt, and yeast. Knead 8-10 minutes, then rest 2 hours.
+2. Divide into {4 balls} and rest 30 minutes more.
 3. Stretch each, top with tomato, garlic, oregano, olive oil, salt.
-4. Bake at the highest temperature your oven allows, {5-7 minutes}.
+4. Bake at the highest temperature your oven allows, 5-7 minutes.

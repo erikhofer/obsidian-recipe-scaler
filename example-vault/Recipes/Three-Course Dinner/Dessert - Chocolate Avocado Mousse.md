@@ -14,4 +14,4 @@ Silky, rich, and accidentally vegan.
 ## Method
 
 1. Blend everything until smooth.
-2. Chill {1 hour} before serving.
+2. Chill 1 hour before serving.
