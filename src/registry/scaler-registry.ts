@@ -26,9 +26,6 @@ export class ScalerRegistry {
         spans: [],
       };
       this.scopes.set(id, scope);
-    } else if (scope.baseServings !== baseServings) {
-      scope.baseServings = baseServings;
-      scope.currentServings = baseServings;
     }
     return scope;
   }
@@ -51,7 +48,11 @@ export class ScalerRegistry {
     baseServings: number,
     onChange: (value: number) => void
   ): void {
-    this.getOrCreate(id, baseServings);
+    const scope = this.getOrCreate(id, baseServings);
+    // registerUI is authoritative for baseServings; correct any value set by
+    // earlier registerSpan calls that arrived before the UI tag's chunk.
+    scope.baseServings = baseServings;
+    scope.currentServings = baseServings;
     input.addEventListener("change", () => {
       let v = parseInt(input.value, 10);
       if (!Number.isFinite(v) || v < 1) v = 1;

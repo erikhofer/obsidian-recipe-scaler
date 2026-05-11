@@ -95,4 +95,21 @@ describe("ScalerRegistry", () => {
 
     expect(received).toBe(8);
   });
+
+  it("registerUI is authoritative: corrects baseServings set by earlier registerSpan", () => {
+    // Simulate cross-chunk ordering: spans register first with a stale/wrong
+    // baseServings, then the UI tag registers with the correct value.
+    const span = makeSpan();
+    registry.registerSpan("note:a.md", span, parseQuantity("2 cups")!, 2); // wrong base from span chunk
+
+    const input = document.createElement("input");
+    input.type = "number";
+    document.body.appendChild(input);
+    registry.registerUI("note:a.md", input, 4, () => {}); // correct base from UI
+
+    // After registerUI, scope.baseServings must be 4.
+    const scope = (registry as any).scopes.get("note:a.md");
+    expect(scope.baseServings).toBe(4);
+    expect(scope.currentServings).toBe(4);
+  });
 });
