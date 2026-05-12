@@ -72,6 +72,10 @@
   font: inherit;
 }
 
+.recipe-scaler-select option {
+  color: var(--text-normal);
+}
+
 .recipe-scaler-base {
   color: var(--text-faint);
   font-size: 0.85em;
