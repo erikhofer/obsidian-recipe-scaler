@@ -46,7 +46,10 @@ export function createScalerWidget(opts: ScalerWidgetOptions): HTMLElement {
     input.value = select.value;
     input.dispatchEvent(new Event("change"));
   });
-  wrap.appendChild(select);
+  const selectWrap = document.createElement("span");
+  selectWrap.className = "recipe-scaler-select-wrap";
+  selectWrap.appendChild(select);
+  wrap.appendChild(selectWrap);
 
   const reset = document.createElement("button");
   reset.type = "button";

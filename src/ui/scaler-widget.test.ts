@@ -100,4 +100,14 @@ describe("createScalerWidget", () => {
     const input = widget.querySelector("input") as HTMLInputElement;
     expect(input.value).toBe("7");
   });
+
+  it("select is wrapped in a span.recipe-scaler-select-wrap", () => {
+    const widget = createScalerWidget({ baseServings: 4, onChange: () => {} });
+    document.body.appendChild(widget);
+    const selectWrap = widget.querySelector(".recipe-scaler-select-wrap") as HTMLSpanElement;
+    expect(selectWrap).not.toBeNull();
+    expect(selectWrap.tagName).toBe("SPAN");
+    const select = selectWrap.querySelector("select") as HTMLSelectElement;
+    expect(select).not.toBeNull();
+  });
 });
