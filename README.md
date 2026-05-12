@@ -2,6 +2,15 @@
 
 Obsidian plugin that scales recipe quantities dynamically by serving size, in notes and canvases.
 
+## Installation
+
+The plugin is not yet in the community plugin directory. Install it via [BRAT](https://github.com/TfTHacker/obsidian42-brat):
+
+1. Install the BRAT plugin from the community plugins directory and enable it.
+2. Open the command palette and run **BRAT: Add a beta plugin for testing**.
+3. Enter this repository's URL: `https://github.com/erikhofer/obsidian-recipe-scaler`.
+4. Enable **Recipe Scaler** under Settings → Community plugins.
+
 ## Usage
 
 Add a `recipe-scaler` code block at the top of a recipe note, then wrap quantities in curly braces:
