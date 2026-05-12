@@ -75,4 +75,29 @@ describe("createScalerWidget", () => {
     expect(input.value).toBe("4");
     expect(changeEvents).toBeGreaterThan(0);
   });
+
+  it("renders a select with options 1–10", () => {
+    const widget = createScalerWidget({ baseServings: 4, onChange: () => {} });
+    document.body.appendChild(widget);
+    const select = widget.querySelector("select") as HTMLSelectElement;
+    expect(select).not.toBeNull();
+    expect(select.options.length).toBe(10);
+    expect(select.options[0].value).toBe("1");
+    expect(select.options[9].value).toBe("10");
+  });
+
+  it("selecting a value from the dropdown calls onChange with the correct integer", () => {
+    let received: number | null = null;
+    const widget = createScalerWidget({
+      baseServings: 4,
+      onChange: (v) => (received = v),
+    });
+    document.body.appendChild(widget);
+    const select = widget.querySelector("select") as HTMLSelectElement;
+    select.value = "7";
+    select.dispatchEvent(new Event("change"));
+    expect(received).toBe(7);
+    const input = widget.querySelector("input") as HTMLInputElement;
+    expect(input.value).toBe("7");
+  });
 });

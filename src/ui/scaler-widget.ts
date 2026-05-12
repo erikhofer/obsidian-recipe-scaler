@@ -31,6 +31,23 @@ export function createScalerWidget(opts: ScalerWidgetOptions): HTMLElement {
   });
   wrap.appendChild(input);
 
+  const select = document.createElement("select");
+  select.className = "recipe-scaler-select";
+  for (let i = 1; i <= 10; i++) {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = String(i);
+    select.appendChild(opt);
+  }
+  if (opts.baseServings >= 1 && opts.baseServings <= 10) {
+    select.value = String(opts.baseServings);
+  }
+  select.addEventListener("change", () => {
+    input.value = select.value;
+    input.dispatchEvent(new Event("change"));
+  });
+  wrap.appendChild(select);
+
   const reset = document.createElement("button");
   reset.type = "button";
   reset.className = "recipe-scaler-reset";

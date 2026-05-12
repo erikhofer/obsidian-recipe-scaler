@@ -42,6 +42,16 @@
   background: var(--background-modifier-hover);
 }
 
+.recipe-scaler-select {
+  padding: 0.1em 0.3em;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  cursor: pointer;
+  font: inherit;
+}
+
 .recipe-scaler-base {
   color: var(--text-faint);
   font-size: 0.85em;
