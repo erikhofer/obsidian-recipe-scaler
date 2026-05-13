@@ -15,101 +15,105 @@ describe("ScalerRegistry", () => {
     registry = new ScalerRegistry(() => pairs);
   });
 
-  function makeSpan(): HTMLElement {
+  function makeLeaf(): HTMLElement {
+    const leaf = document.createElement("div");
+    leaf.className = "workspace-leaf-content";
+    document.body.appendChild(leaf);
+    return leaf;
+  }
+
+  function makeSpan(parent: HTMLElement, raw: string): HTMLElement {
     const s = document.createElement("span");
-    document.body.appendChild(s);
+    s.className = "recipe-scaler-qty";
+    parent.appendChild(s);
+    registry.rememberSpan(s, parseQuantity(raw)!);
     return s;
   }
 
-  it("renders the base value on register", () => {
-    const span = makeSpan();
-    const q = parseQuantity("2 cups")!;
-    registry.registerSpan("note:a.md", span, q, 4);
-    expect(span.textContent).toBe("2 cups");
+  it("rememberSpan renders the raw text initially", () => {
+    const leaf = makeLeaf();
+    const s = makeSpan(leaf, "2 cups");
+    expect(s.textContent).toBe("2 cups");
   });
 
-  it("updates all spans in scope when setServings is called", () => {
-    const s1 = makeSpan();
-    const s2 = makeSpan();
-    registry.registerSpan("note:a.md", s1, parseQuantity("2 cups")!, 4);
-    registry.registerSpan("note:a.md", s2, parseQuantity("3 cloves")!, 4);
+  it("applyServings updates all spans within the widget's leaf", () => {
+    const leaf = makeLeaf();
+    const s1 = makeSpan(leaf, "2 cups");
+    const s2 = makeSpan(leaf, "3 cloves");
+    const widget = document.createElement("span");
+    leaf.appendChild(widget);
 
-    registry.setServings("note:a.md", 8);
+    const n = registry.applyServings(widget, 8, 4);
 
     expect(s1.textContent).toBe("4 cups");
     expect(s2.textContent).toBe("6 cloves");
+    expect(n).toBe(2);
   });
 
-  it("pluralizes correctly on scale down", () => {
-    const s1 = makeSpan();
-    registry.registerSpan("note:a.md", s1, parseQuantity("2 cups")!, 4);
-    registry.setServings("note:a.md", 2);
-    expect(s1.textContent).toBe("1 cup");
+  it("pluralizes correctly when scaling down", () => {
+    const leaf = makeLeaf();
+    const s = makeSpan(leaf, "2 cups");
+    const widget = document.createElement("span");
+    leaf.appendChild(widget);
+    registry.applyServings(widget, 2, 4);
+    expect(s.textContent).toBe("1 cup");
   });
 
-  it("does not cross scopes", () => {
-    const s1 = makeSpan();
-    const s2 = makeSpan();
-    registry.registerSpan("note:a.md", s1, parseQuantity("2 cups")!, 4);
-    registry.registerSpan("note:b.md", s2, parseQuantity("3 cloves")!, 4);
+  it("does not affect spans in a different leaf", () => {
+    const leafA = makeLeaf();
+    const leafB = makeLeaf();
+    const sA = makeSpan(leafA, "2 cups");
+    const sB = makeSpan(leafB, "3 cloves");
+    const widget = document.createElement("span");
+    leafA.appendChild(widget);
 
-    registry.setServings("note:a.md", 8);
+    registry.applyServings(widget, 8, 4);
+
+    expect(sA.textContent).toBe("4 cups");
+    expect(sB.textContent).toBe("3 cloves");
+  });
+
+  it("updates spans in sibling sub-containers (canvas widget + embedded-note spans)", () => {
+    // Regression for the canvas case: widget lives in one canvas node,
+    // spans live in OTHER canvas nodes (embedded markdown files). They
+    // all share the same workspace-leaf-content.
+    const canvasLeaf = makeLeaf();
+    const widgetNode = document.createElement("div");
+    canvasLeaf.appendChild(widgetNode);
+    const embedA = document.createElement("div");
+    canvasLeaf.appendChild(embedA);
+    const embedB = document.createElement("div");
+    canvasLeaf.appendChild(embedB);
+
+    const sA = makeSpan(embedA, "2 cups");
+    const sB = makeSpan(embedB, "3 cloves");
+
+    const widget = document.createElement("span");
+    widgetNode.appendChild(widget);
+
+    registry.applyServings(widget, 8, 4);
+
+    expect(sA.textContent).toBe("4 cups");
+    expect(sB.textContent).toBe("6 cloves");
+  });
+
+  it("skips detached spans", () => {
+    const leaf = makeLeaf();
+    const s1 = makeSpan(leaf, "2 cups");
+    const s2 = makeSpan(leaf, "3 cloves");
+    s2.remove();
+
+    const widget = document.createElement("span");
+    leaf.appendChild(widget);
+    const n = registry.applyServings(widget, 8, 4);
 
     expect(s1.textContent).toBe("4 cups");
     expect(s2.textContent).toBe("3 cloves");
+    expect(n).toBe(1);
   });
 
-  it("prunes detached spans lazily on setServings", () => {
-    const s1 = makeSpan();
-    const s2 = makeSpan();
-    registry.registerSpan("note:a.md", s1, parseQuantity("2 cups")!, 4);
-    registry.registerSpan("note:a.md", s2, parseQuantity("3 cloves")!, 4);
-
-    s1.remove();
-    registry.setServings("note:a.md", 8);
-
-    expect(s2.textContent).toBe("6 cloves");
-    expect((registry as any).scopes.get("note:a.md").spans.length).toBe(1);
-  });
-
-  it("ignores setServings for unknown scope", () => {
-    expect(() => registry.setServings("note:nope.md", 8)).not.toThrow();
-  });
-
-  it("cleanupScope removes scope state", () => {
-    const s1 = makeSpan();
-    registry.registerSpan("note:a.md", s1, parseQuantity("2 cups")!, 4);
-    registry.cleanupScope("note:a.md");
-    expect((registry as any).scopes.has("note:a.md")).toBe(false);
-  });
-
-  it("syncs UI input value to scope when registered", () => {
-    const input = document.createElement("input");
-    input.type = "number";
-    document.body.appendChild(input);
-    let received: number | null = null;
-    registry.registerUI("note:a.md", input, 4, (v) => (received = v));
-
-    input.value = "8";
-    input.dispatchEvent(new Event("change"));
-
-    expect(received).toBe(8);
-  });
-
-  it("registerUI is authoritative: corrects baseServings set by earlier registerSpan", () => {
-    // Simulate cross-chunk ordering: spans register first with a stale/wrong
-    // baseServings, then the UI tag registers with the correct value.
-    const span = makeSpan();
-    registry.registerSpan("note:a.md", span, parseQuantity("2 cups")!, 2); // wrong base from span chunk
-
-    const input = document.createElement("input");
-    input.type = "number";
-    document.body.appendChild(input);
-    registry.registerUI("note:a.md", input, 4, () => {}); // correct base from UI
-
-    // After registerUI, scope.baseServings must be 4.
-    const scope = (registry as any).scopes.get("note:a.md");
-    expect(scope.baseServings).toBe(4);
-    expect(scope.currentServings).toBe(4);
+  it("does nothing when widget has no enclosing leaf", () => {
+    const widget = document.createElement("span");
+    expect(() => registry.applyServings(widget, 8, 4)).not.toThrow();
   });
 });

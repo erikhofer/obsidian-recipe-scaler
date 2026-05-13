@@ -1,10 +1,9 @@
 import type { MarkdownPostProcessorContext } from "obsidian";
-import type { ScalerRegistry, ScopeId } from "../registry/scaler-registry";
+import type { ScalerRegistry } from "../registry/scaler-registry";
 import { createScalerWidget } from "../ui/scaler-widget";
 
 export interface CodeBlockProcessorDeps {
   registry: ScalerRegistry;
-  resolveScope: (sourcePath: string) => ScopeId;
 }
 
 export interface ParsedScalerBlock {
@@ -29,10 +28,9 @@ export function createCodeBlockProcessor(deps: CodeBlockProcessorDeps) {
   return (
     source: string,
     el: HTMLElement,
-    ctx: MarkdownPostProcessorContext
+    _ctx: MarkdownPostProcessorContext
   ) => {
     const { baseServings, malformed } = parseScalerCodeBlock(source);
-    const scopeId = deps.resolveScope(ctx.sourcePath);
 
     if (malformed) {
       console.warn(
@@ -43,10 +41,10 @@ export function createCodeBlockProcessor(deps: CodeBlockProcessorDeps) {
     while (el.firstChild) el.removeChild(el.firstChild);
     const widget = createScalerWidget({
       baseServings,
-      onChange: () => {},
+      onChange: (servings: number) => {
+        deps.registry.applyServings(widget, servings, baseServings);
+      },
     });
     el.appendChild(widget);
-    const input = widget.querySelector("input") as HTMLInputElement;
-    deps.registry.registerUI(scopeId, input, baseServings, () => {});
   };
 }
