@@ -1,7 +1,7 @@
 import type { MarkdownPostProcessorContext } from "obsidian";
 import { parseQuantity } from "../core/scaler";
 import type { Quantity } from "../core/types";
-import type { ScalerRegistry, ScopeId } from "../registry/scaler-registry";
+import type { ScalerRegistry } from "../registry/scaler-registry";
 
 export interface FoundQuantity {
   span: HTMLSpanElement;
@@ -10,9 +10,7 @@ export interface FoundQuantity {
 
 const QUANTITY_RE = /\{([^{}\n]+)\}/g;
 
-export function replaceQuantitiesInTextNodes(
-  root: Node
-): FoundQuantity[] {
+export function replaceQuantitiesInTextNodes(root: Node): FoundQuantity[] {
   const results: FoundQuantity[] = [];
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
@@ -77,17 +75,13 @@ export function replaceQuantitiesInTextNodes(
 
 export interface PostProcessorDeps {
   registry: ScalerRegistry;
-  resolveScope: (sourcePath: string) => ScopeId;
 }
 
 export function createPostProcessor(deps: PostProcessorDeps) {
-  return (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-    const scopeId = deps.resolveScope(ctx.sourcePath);
+  return (el: HTMLElement, _ctx: MarkdownPostProcessorContext) => {
     const quantities = replaceQuantitiesInTextNodes(el);
     for (const { span, quantity } of quantities) {
-      // baseServings=1 is a placeholder — the registry uses the value supplied
-      // by registerUI (from the recipe-scaler code block) as authoritative.
-      deps.registry.registerSpan(scopeId, span, quantity, 1);
+      deps.registry.rememberSpan(span, quantity);
     }
   };
 }
