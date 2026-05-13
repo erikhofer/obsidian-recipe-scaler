@@ -115,6 +115,45 @@ describe("CanvasResolver", () => {
     expect(resolver.resolveScope("Recipes/x.md")).toBe("note:Recipes/x.md");
   });
 
+  it("resolves to canvas scope after mdPathToCanvas is cleared by a second refresh", async () => {
+    const app = makeFakeApp(
+      [{ path: "a.canvas", content: canvasNode("Recipes/x.md") }],
+      [
+        {
+          view: { getViewType: () => "canvas", file: { path: "a.canvas" } },
+        },
+      ]
+    );
+    const resolver = new CanvasResolver(app as any, () => {});
+    await resolver.start();
+    expect(resolver.resolveScope("Recipes/x.md")).toBe("canvas:a.canvas");
+
+    // Simulate a second refresh (e.g. triggered by canvas node resize)
+    // that would re-build mdPathToCanvas from the same open leaves.
+    // resolveScope should still return canvas scope via stickyNoteToCanvas.
+    await (resolver as any).refresh();
+    expect(resolver.resolveScope("Recipes/x.md")).toBe("canvas:a.canvas");
+  });
+
+  it("clears sticky cache when canvas is closed", async () => {
+    const app = makeFakeApp(
+      [{ path: "a.canvas", content: canvasNode("Recipes/x.md") }],
+      [
+        {
+          view: { getViewType: () => "canvas", file: { path: "a.canvas" } },
+        },
+      ]
+    );
+    const resolver = new CanvasResolver(app as any, () => {});
+    await resolver.start();
+    expect(resolver.resolveScope("Recipes/x.md")).toBe("canvas:a.canvas");
+
+    // Close the canvas
+    (app.workspace as any).iterateAllLeaves = () => {};
+    await (resolver as any).refresh();
+    expect(resolver.resolveScope("Recipes/x.md")).toBe("note:Recipes/x.md");
+  });
+
   it("survives malformed canvas JSON", async () => {
     const app = makeFakeApp(
       [{ path: "a.canvas", content: "not-json{{{" }],

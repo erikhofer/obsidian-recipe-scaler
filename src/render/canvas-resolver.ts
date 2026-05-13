@@ -3,6 +3,7 @@ import type { ScopeId } from "../registry/scaler-registry";
 
 export class CanvasResolver {
   private mdPathToCanvas = new Map<string, string>();
+  private stickyNoteToCanvas = new Map<string, string>();
   private openCanvases = new Set<string>();
   private app: App;
   private onScopeClosed: (scopeId: ScopeId) => void;
@@ -31,7 +32,7 @@ export class CanvasResolver {
     if (sourcePath.endsWith(".canvas")) {
       return `canvas:${sourcePath}`;
     }
-    const canvas = this.mdPathToCanvas.get(sourcePath);
+    const canvas = this.mdPathToCanvas.get(sourcePath) ?? this.stickyNoteToCanvas.get(sourcePath);
     if (canvas) return `canvas:${canvas}`;
     return `note:${sourcePath}`;
   }
@@ -64,8 +65,15 @@ export class CanvasResolver {
       }
     }
 
+    for (const [notePath, canvasPath] of newMapping) {
+      this.stickyNoteToCanvas.set(notePath, canvasPath);
+    }
+
     for (const prev of this.openCanvases) {
       if (!newOpen.has(prev)) {
+        for (const [notePath, canvasPath] of this.stickyNoteToCanvas) {
+          if (canvasPath === prev) this.stickyNoteToCanvas.delete(notePath);
+        }
         this.onScopeClosed(`canvas:${prev}`);
       }
     }

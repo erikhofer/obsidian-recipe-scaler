@@ -47,6 +47,7 @@ export function createCodeBlockProcessor(deps: CodeBlockProcessorDeps) {
     });
     el.appendChild(widget);
     const input = widget.querySelector("input") as HTMLInputElement;
-    deps.registry.registerUI(scopeId, input, baseServings, () => {});
+    const sourcePath = ctx.sourcePath;
+    deps.registry.registerUI(scopeId, input, baseServings, () => {}, () => deps.resolveScope(sourcePath));
   };
 }

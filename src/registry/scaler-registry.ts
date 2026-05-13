@@ -46,7 +46,10 @@ export class ScalerRegistry {
     id: ScopeId,
     input: HTMLInputElement,
     baseServings: number,
-    onChange: (value: number) => void
+    onChange: (value: number) => void,
+    // Optional lazy resolver: called at interaction time instead of render time.
+    // Fixes canvas/note scope-ID timing mismatch (async CanvasResolver.refresh()).
+    resolveScope?: () => ScopeId
   ): void {
     const scope = this.getOrCreate(id, baseServings);
     // registerUI is authoritative for baseServings; correct any value set by
@@ -54,11 +57,18 @@ export class ScalerRegistry {
     scope.baseServings = baseServings;
     scope.currentServings = baseServings;
     input.addEventListener("change", () => {
+      const currentId = resolveScope ? resolveScope() : id;
+      if (currentId !== id) {
+        // Scope resolved to a different ID at interaction time (e.g. canvas/note
+        // timing mismatch). Make that scope authoritative for baseServings too.
+        const resolvedScope = this.getOrCreate(currentId, baseServings);
+        resolvedScope.baseServings = baseServings;
+      }
       let v = parseInt(input.value, 10);
       if (!Number.isFinite(v) || v < 1) v = 1;
       input.value = String(v);
       onChange(v);
-      this.setServings(id, v);
+      this.setServings(currentId, v);
     });
   }
 
