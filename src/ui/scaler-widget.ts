@@ -29,7 +29,34 @@ export function createScalerWidget(opts: ScalerWidgetOptions): HTMLElement {
     input.value = String(v);
     opts.onChange(v);
   });
+
+  const minus = document.createElement("button");
+  minus.type = "button";
+  minus.className = "recipe-scaler-step recipe-scaler-step-down";
+  minus.textContent = "−"; // U+2212 MINUS SIGN
+  minus.title = "Decrease";
+  minus.addEventListener("click", () => {
+    const current = parseInt(input.value, 10);
+    const next = Math.max(1, (Number.isFinite(current) ? current : 1) - 1);
+    input.value = String(next);
+    input.dispatchEvent(new Event("change"));
+  });
+  wrap.appendChild(minus);
+
   wrap.appendChild(input);
+
+  const plus = document.createElement("button");
+  plus.type = "button";
+  plus.className = "recipe-scaler-step recipe-scaler-step-up";
+  plus.textContent = "+";
+  plus.title = "Increase";
+  plus.addEventListener("click", () => {
+    const current = parseInt(input.value, 10);
+    const next = (Number.isFinite(current) ? current : 0) + 1;
+    input.value = String(next);
+    input.dispatchEvent(new Event("change"));
+  });
+  wrap.appendChild(plus);
 
   const reset = document.createElement("button");
   reset.type = "button";

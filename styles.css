@@ -28,7 +28,8 @@
   font: inherit;
 }
 
-.recipe-scaler-reset {
+.recipe-scaler-reset,
+.recipe-scaler-step {
   padding: 0.1em 0.5em;
   border: 1px solid var(--background-modifier-border);
   border-radius: 4px;
@@ -38,7 +39,12 @@
   font: inherit;
 }
 
-.recipe-scaler-reset:hover {
+.recipe-scaler-step {
+  line-height: 1;
+}
+
+.recipe-scaler-reset:hover,
+.recipe-scaler-step:hover {
   background: var(--background-modifier-hover);
 }
 

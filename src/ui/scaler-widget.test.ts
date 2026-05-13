@@ -50,7 +50,7 @@ describe("createScalerWidget", () => {
     });
     document.body.appendChild(widget);
     const input = widget.querySelector("input") as HTMLInputElement;
-    const reset = widget.querySelector("button") as HTMLButtonElement;
+    const reset = widget.querySelector(".recipe-scaler-reset") as HTMLButtonElement;
     input.value = "8";
     input.dispatchEvent(new Event("change"));
     reset.click();
@@ -67,12 +67,54 @@ describe("createScalerWidget", () => {
     const widget = createScalerWidget({ baseServings: 4, onChange: () => {} });
     document.body.appendChild(widget);
     const input = widget.querySelector("input") as HTMLInputElement;
-    const reset = widget.querySelector("button") as HTMLButtonElement;
+    const reset = widget.querySelector(".recipe-scaler-reset") as HTMLButtonElement;
     let changeEvents = 0;
     input.addEventListener("change", () => { changeEvents++; });
     input.value = "8";
     reset.click();
     expect(input.value).toBe("4");
     expect(changeEvents).toBeGreaterThan(0);
+  });
+
+  it("plus button increments servings and calls onChange", () => {
+    let received: number | null = null;
+    const widget = createScalerWidget({
+      baseServings: 4,
+      onChange: (v) => (received = v),
+    });
+    document.body.appendChild(widget);
+    const input = widget.querySelector("input") as HTMLInputElement;
+    const plus = widget.querySelector(".recipe-scaler-step-up") as HTMLButtonElement;
+    plus.click();
+    expect(input.value).toBe("5");
+    expect(received).toBe(5);
+  });
+
+  it("minus button decrements servings and calls onChange", () => {
+    let received: number | null = null;
+    const widget = createScalerWidget({
+      baseServings: 4,
+      onChange: (v) => (received = v),
+    });
+    document.body.appendChild(widget);
+    const input = widget.querySelector("input") as HTMLInputElement;
+    const minus = widget.querySelector(".recipe-scaler-step-down") as HTMLButtonElement;
+    minus.click();
+    expect(input.value).toBe("3");
+    expect(received).toBe(3);
+  });
+
+  it("minus button does not decrement below 1", () => {
+    let received: number | null = null;
+    const widget = createScalerWidget({
+      baseServings: 1,
+      onChange: (v) => (received = v),
+    });
+    document.body.appendChild(widget);
+    const input = widget.querySelector("input") as HTMLInputElement;
+    const minus = widget.querySelector(".recipe-scaler-step-down") as HTMLButtonElement;
+    minus.click();
+    expect(input.value).toBe("1");
+    expect(received).toBe(1);
   });
 });
