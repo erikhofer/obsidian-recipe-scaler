@@ -13,7 +13,9 @@
     "lint": "eslint src --ext .ts",
     "release": "node scripts/release.mjs"
   },
-  "keywords": ["obsidian-plugin"],
+  "keywords": [
+    "obsidian-plugin"
+  ],
   "author": "Erik Hofer",
   "license": "MIT",
   "devDependencies": {
