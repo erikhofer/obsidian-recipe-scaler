@@ -53,6 +53,16 @@ npm run build:install  # build + copy into example-vault
 
 The example vault under `example-vault/` contains a single-note recipe (`Pizza Marinara.md`) and a canvas (`Three-Course Dinner.canvas`).
 
+## Releasing
+
+```bash
+npm run release -- 1.2.3
+```
+
+Bumps the version in `manifest.json` and `package.json`, creates a commit and tag, and pushes to `origin/main`. GitHub Actions then builds the plugin and publishes a GitHub release with `main.js`, `styles.css`, and `manifest.json` as artifacts.
+
+Must be run on the `main` branch and in sync with `origin/main`.
+
 ## Limitations
 
 - Reading View and Canvas only — Live Preview not supported.
